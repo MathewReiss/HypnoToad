@@ -1,0 +1,28 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "Mathew Reiss",
+    "longName": "HypnoToad",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "data/ezgif.com-gif-maker_toad.png",
+                "name": "TOAD_OPT",
+                "type": "raw"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "HypnoToad",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "5916079d-5a69-436a-8df0-6cb60d83d7e1",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
