@@ -1,10 +1,19 @@
+/*
+// CODE BELOW IS MODIFIED FROM CHRIS LEWIS' PEBBLE-HACKS SAMPLE CODE
+*/
+
 #include <pebble.h>
 
+//Main Window
 static Window *s_main_window;
 
+//Placeholder GBitmap for current "frame" of animation
 static GBitmap *s_bitmap = NULL;
+//BitmapLayer for displayer current frame
 static BitmapLayer *s_bitmap_layer;
+//TextLayers for displaying time (with drop shadow)
 static TextLayer *s_text_layer, *s_top_left;
+//GBitmapSequence holds the APNG in memory, effectively a spritesheet
 static GBitmapSequence *s_sequence = NULL;
 
 static void load_sequence();
@@ -15,6 +24,13 @@ static void timer_handler(void *context) {
   uint32_t next_delay;
 
   // Advance to the next APNG frame
+	//
+	//gbitmap_sequence_update_bitmap_next_frame returns a bool
+	//
+	//true = there is another frame in the sequence, and s_bitmap has been set to the next frame
+	//false = there sequence is on its last frame
+	//
+	//NB: this function also sets next_delay equal to the time between frames (this data comes from the APNG)
   if(gbitmap_sequence_update_bitmap_next_frame(s_sequence, s_bitmap, &next_delay)) {
     bitmap_layer_set_bitmap(s_bitmap_layer, s_bitmap);
     layer_mark_dirty(bitmap_layer_get_layer(s_bitmap_layer));
@@ -28,11 +44,12 @@ static void timer_handler(void *context) {
 }
 
 static void load_sequence() {
-  // Free old data
+  // Free old data - if s_sequence exists, destroy it before reallocating to prevent memory leak
   if(s_sequence) {
     gbitmap_sequence_destroy(s_sequence);
     s_sequence = NULL;
   }
+  // Do the same for the gbitmap storing the current frame
   if(s_bitmap) {
     gbitmap_destroy(s_bitmap);
     s_bitmap = NULL;
@@ -44,7 +61,7 @@ static void load_sequence() {
   // Create GBitmap
   s_bitmap = gbitmap_create_blank(gbitmap_sequence_get_bitmap_size(s_sequence), GBitmapFormat8Bit);
 
-  // Begin animation
+  // Begin animation - the 1 millisecond just fires the timer immediately, timer_handler(NULL) could also have been used.
   app_timer_register(1, timer_handler, NULL);
 }
 
@@ -84,6 +101,7 @@ static void main_window_load(Window *window) {
   s_bitmap_layer = bitmap_layer_create(GRect(0,42,144,126));
   layer_add_child(window_layer, bitmap_layer_get_layer(s_bitmap_layer));
 
+  // Initialize sequence
   load_sequence();
 	
 	tick_timer_service_subscribe(MINUTE_UNIT, minute_tick);
